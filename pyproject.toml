@@ -1,0 +1,36 @@
+[project]
+name = "joy-bot"
+version = "0.1.0"
+description = "Nvidia Founders Edition stock watcher with Telegram alerts"
+readme = "README.md"
+authors = [{ email = "cybernayk0@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "curl-cffi>=0.16.0",
+    "httpx>=0.28",
+    "pydantic-settings>=2.6",
+    "tenacity>=9.0",
+]
+
+[project.scripts]
+joy-bot = "joy_bot.main:cli"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.22",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

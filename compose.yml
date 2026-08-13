@@ -1,0 +1,14 @@
+services:
+  joy-bot:
+    build: .
+    image: joy-bot:latest
+    container_name: joy-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"

@@ -1,0 +1,63 @@
+from __future__ import annotations
+
+import logging
+from collections.abc import Iterable
+
+import httpx
+
+from .nvidia import StockItem
+
+log = logging.getLogger(__name__)
+
+
+class TelegramNotifier:
+    def __init__(
+        self,
+        client: httpx.AsyncClient,
+        token: str,
+        chat_id: str,
+        dry_run: bool = False,
+    ) -> None:
+        self._client = client
+        self._url = f"https://api.telegram.org/bot{token}/sendMessage"
+        self._chat_id = chat_id
+        self._dry_run = dry_run
+
+    async def send_text(self, text: str) -> None:
+        if self._dry_run:
+            log.info("[dry-run] would send: %s", text.replace("\n", " | "))
+            return
+        response = await self._client.post(
+            self._url,
+            json={
+                "chat_id": self._chat_id,
+                "text": text,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": False,
+            },
+        )
+        response.raise_for_status()
+
+    async def notify_in_stock(self, item: StockItem) -> None:
+        await self.send_text(format_in_stock(item))
+
+    async def notify_status(self, items: Iterable[StockItem]) -> None:
+        await self.send_text(format_status(items))
+
+
+def format_in_stock(item: StockItem) -> str:
+    price = f"\n*Prix:* {item.price}" if item.price else ""
+    link = f"\n[Acheter maintenant]({item.product_url})" if item.product_url else ""
+    return f"\U0001f6a8 *{item.name}* est en stock !{price}{link}"
+
+
+def format_status(items: Iterable[StockItem]) -> str:
+    items = list(items)
+    if not items:
+        return "ℹ️ Aucun produit renvoyé par Nvidia."
+    lines = ["*État du stock Nvidia FE*", ""]
+    for i in items:
+        icon = "✅" if i.is_active else "❌"
+        price = f" — {i.price}" if i.price else ""
+        lines.append(f"{icon} *{i.name}*{price}")
+    return "\n".join(lines)

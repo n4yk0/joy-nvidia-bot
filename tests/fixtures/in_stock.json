@@ -1,0 +1,20 @@
+{
+  "searchedProducts": {
+    "productDetails": [
+      {
+        "displayName": "NVIDIA RTX 5090",
+        "productSKU": "LCFEGF50LD90",
+        "productPrice": "€2,099.00",
+        "prdStatus": "buy_now",
+        "internalLink": "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/nvidia-geforce-rtx-5090/"
+      },
+      {
+        "displayName": "NVIDIA RTX 5080",
+        "productSKU": "50LD80LCFEGF",
+        "productPrice": "€1,059.00",
+        "prdStatus": "out_of_stock",
+        "internalLink": "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/nvidia-geforce-rtx-5080/"
+      }
+    ]
+  }
+}
