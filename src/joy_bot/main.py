@@ -87,13 +87,15 @@ async def _tick(
         log.warning("empty product list — API shape may have changed")
         return
 
+    founders = [i for i in items if i.is_founders]
     log.debug(
-        "polled %d items: %s",
+        "polled %d items (%d FE): %s",
         len(items),
-        ", ".join(f"{i.name.split()[-1]}={'IN' if i.is_active else 'out'}" for i in items),
+        len(founders),
+        ", ".join(f"{i.name.split()[-1]}={'IN' if i.is_active else 'out'}" for i in founders),
     )
 
-    for item in items:
+    for item in founders:
         if state.transitioned_to_in_stock(item.sku, item.is_active):
             log.info("IN STOCK: %s (%s)", item.name, item.sku)
             try:
@@ -131,6 +133,7 @@ def cli() -> None:
         level=settings.log_level,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
     action = {"test": run_test, "status": run_status}.get(args.command, run_watch)
     asyncio.run(action(settings))

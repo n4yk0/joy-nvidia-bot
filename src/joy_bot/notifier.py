@@ -55,9 +55,21 @@ def format_status(items: Iterable[StockItem]) -> str:
     items = list(items)
     if not items:
         return "ℹ️ Aucun produit renvoyé par Nvidia."
-    lines = ["*État du stock Nvidia FE*", ""]
-    for i in items:
+
+    founders = [i for i in items if i.is_founders]
+    partners = [i for i in items if not i.is_founders]
+
+    def _line(i: StockItem) -> str:
         icon = "✅" if i.is_active else "❌"
         price = f" — {i.price}" if i.price else ""
-        lines.append(f"{icon} *{i.name}*{price}")
+        return f"{icon} *{i.name}*{price}"
+
+    lines = ["*État du stock Nvidia FE*"]
+    lines += [_line(i) for i in founders] if founders else ["_aucune FE listée_"]
+
+    if partners:
+        p_in = sum(1 for i in partners if i.is_active)
+        lines += ["", f"_Canary — cartes partenaires ({p_in}/{len(partners)} en stock)_"]
+        lines += [_line(i) for i in partners]
+
     return "\n".join(lines)

@@ -14,6 +14,13 @@
         "productPrice": "€1,059.00",
         "prdStatus": "out_of_stock",
         "internalLink": "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/nvidia-geforce-rtx-5080/"
+      },
+      {
+        "displayName": "ASUS RTX 3050",
+        "productSKU": "ASUS3050",
+        "productPrice": "€252.99",
+        "prdStatus": "out_of_stock",
+        "internalLink": "https://example.com/asus-3050"
       }
     ]
   }

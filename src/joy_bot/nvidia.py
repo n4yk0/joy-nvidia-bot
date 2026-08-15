@@ -22,6 +22,7 @@ class StockItem:
     sku: str
     name: str
     is_active: bool
+    is_founders: bool
     price: str | None
     product_url: str | None
 
@@ -39,7 +40,6 @@ class NvidiaClient:
                 "limit": 100,
                 "locale": self._locale,
                 "category": "GPU",
-                "manufacturer": "NVIDIA",
             },
         )
         return self._parse(payload)
@@ -53,11 +53,13 @@ class NvidiaClient:
             if not sku:
                 continue
             status = (p.get("prdStatus") or "").lower()
+            name = p.get("displayName") or sku
             items.append(
                 StockItem(
                     sku=sku,
-                    name=p.get("displayName") or sku,
+                    name=name,
                     is_active=status in IN_STOCK_STATUSES,
+                    is_founders=name.upper().startswith("NVIDIA "),
                     price=p.get("productPrice"),
                     product_url=p.get("internalLink"),
                 )
