@@ -2,12 +2,27 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable
+from urllib.parse import urlparse
 
 import httpx
 
 from .nvidia import StockItem
 
 log = logging.getLogger(__name__)
+
+_ALLOWED_LINK_HOSTS = frozenset({"marketplace.nvidia.com", "www.nvidia.com", "nvidia.com"})
+
+
+def _safe_product_link(url: str | None) -> str | None:
+    if not url:
+        return None
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return None
+    if parsed.scheme != "https" or parsed.hostname not in _ALLOWED_LINK_HOSTS:
+        return None
+    return url
 
 
 class TelegramNotifier:
@@ -47,7 +62,8 @@ class TelegramNotifier:
 
 def format_in_stock(item: StockItem) -> str:
     price = f"\n*Prix:* {item.price}" if item.price else ""
-    link = f"\n[Acheter maintenant]({item.product_url})" if item.product_url else ""
+    safe_url = _safe_product_link(item.product_url)
+    link = f"\n[Acheter maintenant]({safe_url})" if safe_url else ""
     return f"\U0001f6a8 *{item.name}* est en stock !{price}{link}"
 
 

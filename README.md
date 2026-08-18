@@ -177,6 +177,9 @@ Common causes:
 **`fetch failed` in logs**
 Nvidia may have changed something on their end. Try `docker compose restart` first. If it persists, open a GitHub issue.
 
+**I accidentally leaked / shared my Telegram token**
+Anyone with that token can control your bot. Revoke it immediately: open Telegram, message **@BotFather**, send `/revoke`, pick your bot, and it will give you a **new** token. Put the new token in `.env`, then `docker compose up -d --build`. The old token is dead the moment you revoke.
+
 **I want to watch a different country's storefront**
 Edit `.env` and change `LOCALE=fr-fr` to e.g. `LOCALE=en-us`, then `docker compose up -d --build`. Note that SKU names and canary cards vary by region — some may not exist in every locale.
 
@@ -223,4 +226,30 @@ make status      # push a one-shot stock snapshot
 - **Watch loop and Telegram command listener run concurrently** in one asyncio process; the listener uses `getUpdates` long-polling — no public URL needed.
 - **Only Founders Edition cards trigger alerts.** Partner cards are shown in `/status` as a "canary" so you can visually verify the pipeline is live.
 
+### Want closer-to-real-time alerts?
+
+The `product/search` endpoint used by this bot is CDN-cached at the edge (Akamai) with a TTL that's likely in the seconds-to-tens-of-seconds range. That's fine for a human buyer, but it can miss very short drops.
+
+For sub-second signal, Nvidia's other endpoint is:
+
+```
+https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=<sku>,<sku>,...
+```
+
+It returns `{"listMap": []}` most of the time and flips populated with `"is_active": "true"` the moment a drop goes live — far less cached than `product/search`. It's the endpoint serious scalper bots poll.
+
+Wiring it in would mean:
+
+1. Add a second `Fetcher` in `nvidia.py` that hits `feinventory` with the FE SKUs (`LCFEGF50LD90`, `50LD80LCFEGF`, `NVGFT570` for `fr-fr`).
+2. Run both fetchers in the watch loop; treat any non-empty `feinventory` response as ground truth for alerts, and keep `product/search` for `/status` display + canary.
+3. Consider dropping `POLL_INTERVAL` to `10`–`15` s for `feinventory` only (staying respectful of Nvidia's infra).
+
+Not implemented here because the empty-most-of-the-time behavior made the pipeline look broken during development, and 45 s is enough for a human to react to a real drop. Left as a documented extension.
+
 </details>
+
+---
+
+## Author
+
+Built by **nayk0** — <https://nayko.dev>

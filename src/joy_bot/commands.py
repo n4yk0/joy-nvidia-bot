@@ -77,8 +77,11 @@ class TelegramListener:
         elif cmd in ("/status", "/start"):
             try:
                 items = await self._nvidia.fetch_inventory()
-            except Exception as exc:  # noqa: BLE001
-                await self._notifier.send_text(f"⚠️ Erreur fetch Nvidia: `{exc!r}`")
+            except Exception:  # noqa: BLE001
+                log.exception("nvidia fetch failed in /status handler")
+                await self._notifier.send_text(
+                    "⚠️ Impossible de récupérer le stock Nvidia — réessayez dans quelques instants."
+                )
                 return
             await self._notifier.send_text(format_status(items))
         else:
