@@ -14,6 +14,7 @@ A small program that watches Nvidia's French storefront for **RTX 5090 / 5080 / 
 2. **Docker Desktop.** This is what actually runs the bot.
    - Windows / macOS: <https://www.docker.com/products/docker-desktop/> — download, install, then **open Docker Desktop at least once** so it starts running in the background.
    - Linux (Debian / Ubuntu): `sudo apt install docker.io docker-compose-v2`
+   - **Windows only:** Docker Desktop needs **WSL2** to run containers. The Docker installer sets it up for you automatically — just accept the prompts and reboot if asked. If it fails, see the WSL2 note in [Troubleshooting](#troubleshooting).
 3. **The Telegram app** on your phone.
 
 You do **not** need to know Python, or install anything else. Everything runs inside Docker.
@@ -145,6 +146,13 @@ You don't need to check anything actively — the bot will message you **automat
 
 **`docker: command not found`**
 Docker Desktop isn't installed or isn't running. Open Docker Desktop from your Start menu / Applications and wait for the whale icon to say "Docker Desktop is running", then retry.
+
+**Windows: Docker Desktop says "WSL 2 installation is incomplete" or won't start**
+Open **PowerShell as Administrator** (Start menu → right-click PowerShell → *Run as administrator*) and run:
+```powershell
+wsl --install
+```
+Reboot when it finishes, then open Docker Desktop again. If `wsl --install` says virtualization is disabled, you need to enable it in your PC's BIOS/UEFI (look for **Intel VT-x**, **AMD-V**, or **SVM Mode**) — this varies by manufacturer, search "enable virtualization &lt;your PC model&gt;".
 
 **Linux: `permission denied while trying to connect to the Docker daemon`**
 Either prefix commands with `sudo`, or add your user to the docker group:
