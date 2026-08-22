@@ -78,7 +78,9 @@ def format_status(items: Iterable[StockItem]) -> str:
     def _line(i: StockItem) -> str:
         icon = "✅" if i.is_active else "❌"
         price = f" — {i.price}" if i.price else ""
-        return f"{icon} *{i.name}*{price}"
+        link_url = _safe_product_link(i.product_url)
+        link = f" · [voir]({link_url})" if link_url else ""
+        return f"{icon} *{i.name}*{price}{link}"
 
     lines = ["*État du stock Nvidia FE*"]
     lines += [_line(i) for i in founders] if founders else ["_aucune FE listée_"]
